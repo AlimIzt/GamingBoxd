@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Game Diary{% endblock %}
+
+{% block content %}
+<header class="hero">
+    <div>
+        <p class="eyebrow">{{ user.username }}</p>
+        <h1>{{ user.display_name }}'s Game Diary</h1>
+        <p class="hero-copy">{{ user.bio }}</p>
+    </div>
+    <a class="button-primary" href="/games/new">Log a game</a>
+</header>
+
+{% if flash_message %}
+<section class="flash flash-{{ flash_kind }}">
+    <p>{{ flash_message }}</p>
+</section>
+{% endif %}
+
+<section class="stats-grid">
+    <article class="stat-card">
+        <span>Total logged</span>
+        <strong>{{ stats.total_logged }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>Completed</span>
+        <strong>{{ stats.completed_count }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>Average rating</span>
+        <strong>{{ stats.average_rating }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>Backlog</span>
+        <strong>{{ stats.backlog_count }}</strong>
+    </article>
+</section>
+
+<section class="import-card">
+    <div>
+        <p class="eyebrow">Steam import</p>
+        <h2>Pull your owned games from Steam</h2>
+        <p class="hero-copy">Paste a Steam profile URL, vanity name, or SteamID64. New titles are imported as backlog entries and your existing reviews stay untouched.</p>
+    </div>
+    <form class="import-form" method="post" action="/imports/steam">
+        <label class="full-width">
+            Steam profile
+            <input type="text" name="profile_input" placeholder="https://steamcommunity.com/id/yourname" required>
+        </label>
+        <button class="button-primary" type="submit">Import from Steam</button>
+    </form>
+</section>
+
+<section class="toolbar">
+    <form class="filters" method="get" action="/">
+        <label>
+            Status
+            <select name="status">
+                <option value="">All</option>
+                {% for status in statuses %}
+                <option value="{{ status.value }}" {% if current_status == status.value %}selected{% endif %}>
+                    {{ status.value.title() }}
+                </option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            Sort by
+            <select name="sort">
+                <option value="recent" {% if current_sort == "recent" %}selected{% endif %}>Recently updated</option>
+                <option value="title" {% if current_sort == "title" %}selected{% endif %}>Title</option>
+                <option value="rating" {% if current_sort == "rating" %}selected{% endif %}>Rating</option>
+                <option value="played_on" {% if current_sort == "played_on" %}selected{% endif %}>Played date</option>
+            </select>
+        </label>
+        <button class="button-secondary" type="submit">Apply</button>
+    </form>
+</section>
+
+<section class="game-grid">
+    {% if logs %}
+        {% for log in logs %}
+        <article class="game-card">
+            <div class="poster">
+                {% if log.game.steam_logo_url %}
+                <img src="{{ log.game.steam_logo_url }}" alt="{{ log.game.title }} cover art">
+                {% else %}
+                <span>{{ log.game.title[:1] }}</span>
+                {% endif %}
+            </div>
+            <div class="card-content">
+                <div class="card-heading">
+                    <div>
+                        <h2>{{ log.game.title }}</h2>
+                        <p>{{ log.game.platform }}{% if log.game.genre %} · {{ log.game.genre }}{% endif %}</p>
+                    </div>
+                    <span class="status-chip status-{{ log.status.value }}">{{ log.status.value }}</span>
+                </div>
+                <div class="meta-row">
+                    <span>Rating: {{ log.rating if log.rating is not none else "Unrated" }}</span>
+                    <span>Played: {{ log.played_on if log.played_on else "Not set" }}</span>
+                    {% if log.steam_playtime_minutes is not none %}
+                    <span>Steam time: {{ log.steam_playtime_minutes }} min</span>
+                    {% endif %}
+                    {% if log.import_source == "steam" %}
+                    <span>Imported from Steam</span>
+                    {% endif %}
+                </div>
+                <p class="review-copy">{{ log.review if log.review else "No review yet. Add a short take to remember what made this run special." }}</p>
+                <div class="card-actions">
+                    <a class="button-secondary" href="/games/{{ log.id }}/edit">Edit</a>
+                    <form method="post" action="/games/{{ log.id }}/delete">
+                        <button class="button-danger" type="submit">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    {% else %}
+        <article class="empty-state">
+            <h2>No games logged yet</h2>
+            <p>Start your diary with the first title in your backlog, then rate it and leave a mini review.</p>
+            <a class="button-primary" href="/games/new">Add first game</a>
+        </article>
+    {% endif %}
+</section>
+{% endblock %}

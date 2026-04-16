@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<header class="page-header">
+    <div>
+        <p class="eyebrow">Entry editor</p>
+        <h1>{{ title }}</h1>
+        <p class="hero-copy">Track what you played, how it felt, and whether it deserves a spot in your favorites.</p>
+    </div>
+    <a class="button-secondary" href="/">Back to diary</a>
+</header>
+
+<section class="form-card">
+    <form class="game-form" method="post" action="{% if game_log %}/games/{{ game_log.id }}/edit{% else %}/games{% endif %}">
+        <label>
+            Title
+            <input type="text" name="title" value="{{ game_log.game.title if game_log else '' }}" required>
+        </label>
+        <label>
+            Platform
+            <input type="text" name="platform" value="{{ game_log.game.platform if game_log else '' }}" placeholder="PC, Switch, PS5..." required>
+        </label>
+        <label>
+            Genre
+            <input type="text" name="genre" value="{{ game_log.game.genre if game_log and game_log.game.genre else '' }}" placeholder="RPG, roguelike, co-op shooter">
+        </label>
+        <label>
+            Status
+            <select name="status" required>
+                {% for status in statuses %}
+                <option value="{{ status.value }}" {% if game_log and game_log.status.value == status.value %}selected{% elif not game_log and status.value == 'backlog' %}selected{% endif %}>
+                    {{ status.value.title() }}
+                </option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            Rating
+            <input type="number" name="rating" min="0" max="5" step="0.5" value="{{ game_log.rating if game_log and game_log.rating is not none else '' }}" placeholder="0 to 5">
+        </label>
+        <label>
+            Played on
+            <input type="date" name="played_on" value="{{ game_log.played_on if game_log and game_log.played_on else '' }}">
+        </label>
+        <label class="full-width">
+            Review
+            <textarea name="review" rows="6" placeholder="Write a short review or memory from this playthrough...">{{ game_log.review if game_log and game_log.review else '' }}</textarea>
+        </label>
+        <div class="form-actions">
+            <button class="button-primary" type="submit">{{ submit_label }}</button>
+            <a class="button-secondary" href="/">Cancel</a>
+        </div>
+    </form>
+</section>
+{% endblock %}
