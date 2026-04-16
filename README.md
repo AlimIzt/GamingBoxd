@@ -65,6 +65,27 @@ uvicorn app.main:app --reload
 - Supports Steam-powered backlog importing without overwriting your manual notes
 - Designed to be easy to extend with auth, custom lists, and richer metadata later
 
+## Deploy On Render
+
+This project is prepared for [Render](https://render.com/) with `render.yaml`.
+
+Important deployment note:
+- Do not use local SQLite on Render for production-like hosting
+- Set `DATABASE_URL` to a managed Postgres database
+- Set `STEAM_API_KEY` in the Render dashboard before using Steam imports
+
+Recommended Render setup:
+1. Create a new Web Service from this GitHub repo.
+2. Let Render detect `render.yaml`.
+3. Add a Postgres database and copy its connection string into `DATABASE_URL`.
+4. Add `STEAM_API_KEY` as an environment variable.
+5. Deploy and open the generated Render URL.
+
+The app automatically:
+- uses `DATABASE_URL` when present
+- falls back to local `games.db` for local development
+- normalizes Render-style Postgres URLs for SQLAlchemy
+
 ## Tests
 
 Run the focused import tests with:
