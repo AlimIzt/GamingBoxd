@@ -6,3 +6,4 @@ games.db
 *.env
 .env.*
 !.env.example
+Next Steps.txt
