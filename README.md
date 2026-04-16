@@ -22,6 +22,8 @@ A small Letterboxd-style diary for games built with FastAPI, Jinja2, SQLAlchemy,
 
 ## Run locally
 
+Fastest way (Windows): double-click `run.cmd`.
+
 1. Create a virtual environment:
 
 ```powershell
